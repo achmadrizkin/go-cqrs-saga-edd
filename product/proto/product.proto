@@ -1,0 +1,31 @@
+syntax = "proto3";
+option go_package = "/";
+
+message Product {
+    string image_url = 2;
+    string name = 3;
+    int64 price = 4;
+    int64 stock = 5;
+}
+
+message PostProductRequest {
+    Product product = 1;
+}
+
+message PostProductResponse {
+    string status_code = 1;
+    string message = 2;
+}
+
+message GetProductResponse {
+    string status_code = 1;
+    string message = 2;
+    Product data = 3;
+}
+
+message GetProductRequest {}
+
+service ProductService {
+    rpc GetProductAll(GetProductRequest) returns (GetProductResponse) {};
+    rpc PostProduct(PostProductRequest) returns (PostProductResponse) {}
+}
