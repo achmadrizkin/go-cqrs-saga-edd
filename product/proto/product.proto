@@ -13,14 +13,14 @@ message PostProductRequest {
 }
 
 message PostProductResponse {
-    string status_code = 1;
+    int32 status_code = 1;
     string message = 2;
 }
 
 message GetProductResponse {
-    string status_code = 1;
+    int32 status_code = 1;
     string message = 2;
-    Product data = 3;
+    repeated Product data = 3; // repeated like []Product
 }
 
 message GetProductRequest {}

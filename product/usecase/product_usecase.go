@@ -9,6 +9,11 @@ type productUseCase struct {
 	productRepo domain.ProductRepo
 }
 
+// GetAllProductUseCase implements domain.ProductUseCase
+func (p *productUseCase) GetAllProductUseCase(productAll []model.Product) ([]model.Product, error) {
+	return p.productRepo.GetAllProductRepo(productAll)
+}
+
 // CreateProductUseCase implements domain.ProductUseCase
 func (p *productUseCase) CreateProductUseCase(product model.Product) error {
 	return p.productRepo.CreateProductRepo(product)

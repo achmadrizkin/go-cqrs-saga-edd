@@ -14,13 +14,34 @@ type Server struct {
 	ProductUseCase domain.ProductUseCase
 }
 
-// mustEmbedUnimplementedProductServiceServer implements __.ProductServiceServer
-func (*Server) mustEmbedUnimplementedProductServiceServer() {
-}
-
 func (s *Server) GetProductAll(ctx context.Context, req *pb.GetProductRequest) (*pb.GetProductResponse, error) {
-	// Implementation of GetProductAll method
-	return nil, nil
+	var productAll []model.Product
+
+	productAllResponse, err := s.ProductUseCase.GetAllProductUseCase(productAll)
+	if err != nil {
+		return &pb.GetProductResponse{
+			StatusCode: 500,
+			Message:    err.Error(),
+		}, nil
+	}
+
+	// Convert model.Product to []*pb.Product
+	var products []*pb.Product
+	for _, p := range productAllResponse {
+		product := &pb.Product{
+			ImageUrl: p.Image_url,
+			Name:     p.Name,
+			Price:    p.Price,
+			Stock:    p.Stock,
+		}
+		products = append(products, product)
+	}
+
+	return &pb.GetProductResponse{
+		StatusCode: 200,
+		Message:    "Success Get All Product",
+		Data:       products,
+	}, nil
 }
 
 func (s *Server) PostProduct(ctx context.Context, req *pb.PostProductRequest) (*pb.PostProductResponse, error) {
@@ -39,13 +60,13 @@ func (s *Server) PostProduct(ctx context.Context, req *pb.PostProductRequest) (*
 	err := s.ProductUseCase.CreateProductUseCase(productData)
 	if err != nil {
 		return &pb.PostProductResponse{
-			StatusCode: "500",
+			StatusCode: 500,
 			Message:    err.Error(),
 		}, nil
 	}
 
 	return &pb.PostProductResponse{
-		StatusCode: "200",
+		StatusCode: 200,
 		Message:    "Insert Product Success",
 	}, nil
 }
