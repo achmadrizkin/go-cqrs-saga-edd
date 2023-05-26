@@ -5,7 +5,9 @@ import (
 	"go-cqrs-saga-edd/product/db"
 	"go-cqrs-saga-edd/product/model"
 	pb "go-cqrs-saga-edd/product/proto"
+	"go-cqrs-saga-edd/product/repo"
 	"go-cqrs-saga-edd/product/server"
+	"go-cqrs-saga-edd/product/usecase"
 	"log"
 	"net"
 	"os"
@@ -32,9 +34,12 @@ func main() {
 func startGRPCServer(db *gorm.DB) {
 	s := grpc.NewServer()
 
+	productRepo := repo.NewProductRepo(db)
+	productUseCase := usecase.NewProductUseCase(productRepo)
+
 	pb.RegisterProductServiceServer(s, &server.Server{
 		UnimplementedProductServiceServer: pb.UnimplementedProductServiceServer{},
-		Db:                                db,
+		ProductUseCase:                    productUseCase,
 	})
 	reflection.Register(s)
 

@@ -2,17 +2,16 @@ package server
 
 import (
 	"context"
+	"go-cqrs-saga-edd/product/domain"
 	"go-cqrs-saga-edd/product/model"
 	pb "go-cqrs-saga-edd/product/proto"
-	"go-cqrs-saga-edd/product/usecase"
 
 	"github.com/google/uuid"
-	"gorm.io/gorm"
 )
 
 type Server struct {
 	pb.UnimplementedProductServiceServer
-	Db *gorm.DB
+	ProductUseCase domain.ProductUseCase
 }
 
 // mustEmbedUnimplementedProductServiceServer implements __.ProductServiceServer
@@ -37,7 +36,7 @@ func (s *Server) PostProduct(ctx context.Context, req *pb.PostProductRequest) (*
 	}
 
 	// insert into db
-	err := usecase.CreateProductUseCase(s.Db, productData)
+	err := s.ProductUseCase.CreateProductUseCase(productData)
 	if err != nil {
 		return &pb.PostProductResponse{
 			StatusCode: "500",
