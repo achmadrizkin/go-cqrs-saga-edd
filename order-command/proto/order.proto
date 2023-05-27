@@ -24,6 +24,6 @@ message PostOrderResponse {
     string message = 2;
 }
 
-service ProductService {
+service OrderService {
     rpc PostOrder(PostOrderRequest) returns (PostOrderResponse) {}
 }
