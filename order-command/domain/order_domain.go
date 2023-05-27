@@ -1,11 +1,15 @@
 package domain
 
-import "go-cqrs-saga-edd/order-command/model"
+import (
+	"go-cqrs-saga-edd/order-command/model"
+
+	"gorm.io/gorm"
+)
 
 type OrderRepo interface {
-	CreateOrderRepo(model.Order) error
+	CreateOrderRepo(order model.Order) (error, *gorm.DB)
 }
 
 type OrderUseCase interface {
-	CreateOrderUseCase(model.Order) error
+	CreateOrderUseCase(order model.Order) (error, *gorm.DB)
 }

@@ -13,12 +13,14 @@ type orderRepo struct {
 }
 
 // CreateProductRepo implements domain.OrderRepo
-func (o *orderRepo) CreateOrderRepo(order model.Order) error {
-	if err := o.Db.Create(order).Error; err != nil {
-		return errors.New("errCreatedOrderRepo: " + err.Error())
+func (o *orderRepo) CreateOrderRepo(order model.Order) (error, *gorm.DB) {
+	tx := o.Db.Begin()
+
+	if err := tx.Create(&order).Error; err != nil {
+		return errors.New("errCreatedOrderRepo: " + err.Error()), nil
 	}
 
-	return nil
+	return nil, tx
 }
 
 func NewOrderRepo(db *gorm.DB) domain.OrderRepo {

@@ -2,12 +2,9 @@ package server
 
 import (
 	"context"
-	"encoding/json"
 	"go-cqrs-saga-edd/order-command/domain"
 	"go-cqrs-saga-edd/order-command/model"
 	pb "go-cqrs-saga-edd/order-command/proto"
-	"go-cqrs-saga-edd/order-command/utils"
-	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -15,7 +12,8 @@ import (
 
 type OrderServer struct {
 	pb.UnimplementedOrderServiceServer
-	OrderUseCase domain.OrderUseCase
+	OrderUseCase          domain.OrderUseCase
+	OrderPublisherUseCase domain.OrderPublisherUseCase
 }
 
 // PostOrder implements __.OrderServiceServer
@@ -30,42 +28,25 @@ func (o *OrderServer) PostOrder(ctx context.Context, req *pb.PostOrderRequest) (
 	}
 
 	// insert into db
-	if err := o.OrderUseCase.CreateOrderUseCase(orderData); err != nil {
+	err, tx := o.OrderUseCase.CreateOrderUseCase(orderData)
+	if err != nil {
+		tx.Rollback() // Rollback the transaction in case of an error
 		return &pb.PostOrderResponse{
 			StatusCode: 500,
 			Message:    err.Error(),
 		}, nil
 	}
 
-	// The encryption key (must be 16, 24, or 32 bytes)
-	key := []byte("1423456789012345")
-
-	orderJSON, errMarshal := json.Marshal(orderData)
-	if errMarshal != nil {
+	if errPublisher := o.OrderPublisherUseCase.CreateOrderUseCasePublisherToProduct(orderData, "eOrderToProduct"); errPublisher != nil {
+		tx.Rollback() // Rollback the transaction in case of an error
 		return &pb.PostOrderResponse{
 			StatusCode: 500,
-			Message:    "errMarshal: " + errMarshal.Error(),
+			Message:    errPublisher.Error(),
 		}, nil
 	}
 
-	orderDataString := string(orderJSON)
-	log.Println("orderDataString:" + orderDataString)
-
-	// Encrypt
-	encrypted, err := utils.EncryptAES(key, orderDataString)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println("Encrypted:", encrypted)
-
-	// Decrypt
-	decrypted, err := utils.DecryptAES(key, encrypted)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println("Decrypted:", decrypted)
+	// Commit the transaction if everything is successful
+	tx.Commit()
 
 	return &pb.PostOrderResponse{
 		StatusCode: 200,

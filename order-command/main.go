@@ -5,6 +5,7 @@ import (
 	"go-cqrs-saga-edd/order-command/db"
 	"go-cqrs-saga-edd/order-command/model"
 	pb "go-cqrs-saga-edd/order-command/proto"
+	"go-cqrs-saga-edd/order-command/rabbitmq"
 	"go-cqrs-saga-edd/order-command/repo"
 	"go-cqrs-saga-edd/order-command/server"
 	"go-cqrs-saga-edd/order-command/usecase"
@@ -13,6 +14,7 @@ import (
 	"os"
 	"os/signal"
 
+	"github.com/streadway/amqp"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"gorm.io/gorm"
@@ -27,18 +29,25 @@ func main() {
 		log.Panic(err.Error())
 	}
 
-	startGRPCServer(db)
+	rabbitMq := rabbitmq.ConnectionToRabbitMq()
+	chRabbitMQ := rabbitmq.ConnectionToChannelRabbitMq(rabbitMq)
+
+	startGRPCServer(db, chRabbitMQ)
 }
 
-func startGRPCServer(db *gorm.DB) {
+func startGRPCServer(db *gorm.DB, chRabbitMQ *amqp.Channel) {
 	s := grpc.NewServer()
 
 	orderRepo := repo.NewOrderRepo(db)
 	orderUseCase := usecase.NewOrderUseCase(orderRepo)
+	orderEncrypt := repo.NewOrderEncryptRepo()
+	orderPublisherRepo := repo.NewOrderPublisherRepo(chRabbitMQ)
+	orderPublisherUseCase := usecase.NewOrderPublisherUseCase(orderPublisherRepo, orderEncrypt)
 
 	pb.RegisterOrderServiceServer(s, &server.OrderServer{
 		UnimplementedOrderServiceServer: pb.UnimplementedOrderServiceServer{},
 		OrderUseCase:                    orderUseCase,
+		OrderPublisherUseCase:           orderPublisherUseCase,
 	})
 	reflection.Register(s)
 
