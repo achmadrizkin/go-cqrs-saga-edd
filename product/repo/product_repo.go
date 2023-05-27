@@ -14,7 +14,7 @@ type productRepo struct {
 
 // GetAllProductRepo implements domain.ProductRepo
 func (p *productRepo) GetAllProductRepo(productAll []model.Product) ([]model.Product, error) {
-	err := p.Db.Model(&model.Product{}).Select("id", "image_url", "name", "price", "stock").Find(&productAll).Error
+	err := p.Db.Model(&model.Product{}).Select("id", "image_url", "name", "price", "stock", "created_at").Find(&productAll).Error
 	if err != nil {
 		return productAll, errors.New("errGetAllProductRepo: " + err.Error())
 	}

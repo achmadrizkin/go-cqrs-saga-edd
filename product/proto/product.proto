@@ -1,15 +1,22 @@
 syntax = "proto3";
 option go_package = "/";
 
+import "google/protobuf/timestamp.proto";
+
 message Product {
+    string id = 1;
     string image_url = 2;
     string name = 3;
     int64 price = 4;
     int64 stock = 5;
+    google.protobuf.Timestamp created_at = 6;
 }
 
 message PostProductRequest {
-    Product product = 1;
+    string image_url = 1;
+    string name = 2;
+    int64 price = 3;
+    int64 stock = 4;
 }
 
 message PostProductResponse {

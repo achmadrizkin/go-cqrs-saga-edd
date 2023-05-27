@@ -5,8 +5,10 @@ import (
 	"go-cqrs-saga-edd/product/domain"
 	"go-cqrs-saga-edd/product/model"
 	pb "go-cqrs-saga-edd/product/proto"
+	"time"
 
 	"github.com/google/uuid"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Server struct {
@@ -28,11 +30,14 @@ func (s *Server) GetProductAll(ctx context.Context, req *pb.GetProductRequest) (
 	// Convert model.Product to []*pb.Product
 	var products []*pb.Product
 	for _, p := range productAllResponse {
+		createdAt := timestamppb.New(p.CreatedAt)
 		product := &pb.Product{
-			ImageUrl: p.Image_url,
-			Name:     p.Name,
-			Price:    p.Price,
-			Stock:    p.Stock,
+			Id:        p.Id,
+			ImageUrl:  p.Image_url,
+			Name:      p.Name,
+			Price:     p.Price,
+			Stock:     p.Stock,
+			CreatedAt: createdAt,
 		}
 		products = append(products, product)
 	}
@@ -46,14 +51,13 @@ func (s *Server) GetProductAll(ctx context.Context, req *pb.GetProductRequest) (
 
 func (s *Server) PostProduct(ctx context.Context, req *pb.PostProductRequest) (*pb.PostProductResponse, error) {
 
-	var productRequest *pb.Product = req.GetProduct()
-
 	var productData model.Product = model.Product{
 		Id:        uuid.New().String(),
-		Image_url: productRequest.ImageUrl,
-		Name:      productRequest.Name,
-		Price:     productRequest.Price,
-		Stock:     productRequest.Stock,
+		Image_url: req.GetImageUrl(),
+		Name:      req.GetName(),
+		Price:     req.GetPrice(),
+		Stock:     req.GetStock(),
+		CreatedAt: time.Now(),
 	}
 
 	// insert into db
