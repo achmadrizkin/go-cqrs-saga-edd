@@ -17,7 +17,7 @@ func (o *orderRepo) DeleteOrderRepo(order model.Order) (*gorm.DB, error) {
 	tx := o.Db.Begin()
 
 	if err := tx.Where("id = ?", order.Id).Delete(&model.Order{}).Error; err != nil {
-		return nil, errors.New("errDeleteOrderRepo: " + err.Error())
+		return tx, errors.New("errDeleteOrderRepo: " + err.Error())
 	}
 
 	return tx, nil
@@ -28,7 +28,7 @@ func (o *orderRepo) CreateOrderRepo(order model.Order) (*gorm.DB, error) {
 	tx := o.Db.Begin()
 
 	if err := tx.Create(&order).Error; err != nil {
-		return nil, errors.New("errCreatedOrderRepo: " + err.Error())
+		return tx, errors.New("errCreatedOrderRepo: " + err.Error())
 	}
 
 	return tx, nil

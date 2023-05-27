@@ -24,7 +24,8 @@ func main() {
 
 	productConsumerRepo := repo.NewProductConsumerRepo(ch)
 	productAESRepo := repo.NewProductAESRepo()
-	productConsumerUseCase := usecase.NewProductConsumerUseCase(productConsumerRepo, productAESRepo)
+	productRepo := repo.NewProductRepo(database)
+	productConsumerUseCase := usecase.NewProductConsumerUseCase(productConsumerRepo, productAESRepo, productRepo)
 
 	productConsumerUseCase.ConsumerProductFromOrderUseCase("eOrderToProduct")
 }

@@ -1,28 +1,43 @@
 package repo
 
 import (
+	"encoding/json"
 	"errors"
 	"go-cqrs-saga-edd/order-command/utils"
 	"go-cqrs-saga-edd/product/config"
 	"go-cqrs-saga-edd/product/domain"
+	"go-cqrs-saga-edd/product/model"
 	"log"
 )
 
 type productAESRepo struct{}
 
 // DecryptProductAES implements domain.ProductAESRepo
-func (*productAESRepo) DecryptProductAES(message []byte) (string, error) {
+func (*productAESRepo) DecryptProductAES(message []byte) (model.Order, error) {
 	privateToken := config.Config("AES_PRIVATE_TOKEN")
 	key := []byte(privateToken)
 
 	// Decrypt message
 	decrypted, err := utils.DecryptAES(key, string(message))
 	if err != nil {
-		return "", errors.New("errorDecryptAES: " + err.Error())
+		return model.Order{}, errors.New("errorDecryptAES: " + err.Error())
 	}
 
-	log.Println("Decrypted Product Message: " + decrypted)
-	return decrypted, nil
+	log.Println("Decrypted Product Message:", decrypted)
+
+	var order model.Order
+	if err := json.Unmarshal([]byte(decrypted), &order); err != nil {
+		return model.Order{}, errors.New("errorUnmarshalingJSON: " + err.Error())
+	}
+
+	log.Println("Order Id: " + order.Id)
+	log.Println("Order ProductId: " + order.ProductId)
+	log.Println("Order Quantity: ", order.Quantity)
+	log.Println("Order Address: " + order.Address)
+	log.Println("Order ShipMethod : " + order.ShipMethod)
+	log.Println("Order Date : " + order.Date.String())
+
+	return order, nil
 }
 
 func NewProductAESRepo() domain.ProductAESRepo {
