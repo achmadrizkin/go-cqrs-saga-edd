@@ -10,10 +10,10 @@ import (
 	"log"
 )
 
-type orderEncryptRepo struct{}
+type orderAESRepo struct{}
 
 // EncryptOrderAES implements domain.OrderEncryptRepo
-func (*orderEncryptRepo) EncryptOrderAES(order model.Order) ([]byte, error) {
+func (*orderAESRepo) EncryptOrderAES(order model.Order) ([]byte, error) {
 	// privateToken: 1423456789012345
 	privateToken := config.Config("AES_PRIVATE_TOKEN")
 	key := []byte(privateToken)
@@ -34,6 +34,6 @@ func (*orderEncryptRepo) EncryptOrderAES(order model.Order) ([]byte, error) {
 	return []byte(encrypted), nil
 }
 
-func NewOrderEncryptRepo() domain.OrderEncryptRepo {
-	return &orderEncryptRepo{}
+func NewOrderAESRepo() domain.OrderAESRepo {
+	return &orderAESRepo{}
 }

@@ -2,6 +2,6 @@ package domain
 
 import "go-cqrs-saga-edd/order-command/model"
 
-type OrderEncryptRepo interface {
+type OrderAESRepo interface {
 	EncryptOrderAES(model.Order) ([]byte, error)
 }

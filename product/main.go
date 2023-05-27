@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"go-cqrs-saga-edd/product/config"
 	"go-cqrs-saga-edd/product/db"
 	"go-cqrs-saga-edd/product/model"
 	pb "go-cqrs-saga-edd/product/proto"
@@ -44,7 +45,7 @@ func startGRPCServer(db *gorm.DB) {
 	reflection.Register(s)
 
 	// gRPC server
-	lis, err := net.Listen("tcp", ":50051")
+	lis, err := net.Listen("tcp", config.Config("GRPC_PORT"))
 	if err != nil {
 		log.Fatalf("Failed to listen: %v\n", err)
 	}

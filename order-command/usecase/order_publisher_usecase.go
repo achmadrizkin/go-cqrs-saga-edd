@@ -7,7 +7,7 @@ import (
 
 type orderPublisherUseCase struct {
 	orderPublisherRepo domain.OrderPublisherRepo
-	orderEncryptRepo   domain.OrderEncryptRepo
+	orderEncryptRepo   domain.OrderAESRepo
 }
 
 // CreateOrderUseCasePublisherToProduct implements domain.OrderPublisherUseCase
@@ -25,7 +25,7 @@ func (o *orderPublisherUseCase) CreateOrderUseCasePublisherToProduct(order model
 	return nil
 }
 
-func NewOrderPublisherUseCase(orderPublisherRepo domain.OrderPublisherRepo, orderEncryptRepo domain.OrderEncryptRepo) domain.OrderPublisherUseCase {
+func NewOrderPublisherUseCase(orderPublisherRepo domain.OrderPublisherRepo, orderEncryptRepo domain.OrderAESRepo) domain.OrderPublisherUseCase {
 	return &orderPublisherUseCase{
 		orderPublisherRepo: orderPublisherRepo,
 		orderEncryptRepo:   orderEncryptRepo,

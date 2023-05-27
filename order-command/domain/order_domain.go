@@ -7,9 +7,10 @@ import (
 )
 
 type OrderRepo interface {
-	CreateOrderRepo(order model.Order) (error, *gorm.DB)
+	CreateOrderRepo(order model.Order) (*gorm.DB, error)
+	DeleteOrderRepo(order model.Order) (*gorm.DB, error)
 }
 
 type OrderUseCase interface {
-	CreateOrderUseCase(order model.Order) (error, *gorm.DB)
+	CreateOrderUseCase(order model.Order, is_success int) (*gorm.DB, error)
 }

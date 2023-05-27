@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"go-cqrs-saga-edd/order-command/config"
 	"go-cqrs-saga-edd/order-command/db"
 	"go-cqrs-saga-edd/order-command/model"
 	pb "go-cqrs-saga-edd/order-command/proto"
@@ -40,9 +41,9 @@ func startGRPCServer(db *gorm.DB, chRabbitMQ *amqp.Channel) {
 
 	orderRepo := repo.NewOrderRepo(db)
 	orderUseCase := usecase.NewOrderUseCase(orderRepo)
-	orderEncrypt := repo.NewOrderEncryptRepo()
+	orderAESRepo := repo.NewOrderAESRepo()
 	orderPublisherRepo := repo.NewOrderPublisherRepo(chRabbitMQ)
-	orderPublisherUseCase := usecase.NewOrderPublisherUseCase(orderPublisherRepo, orderEncrypt)
+	orderPublisherUseCase := usecase.NewOrderPublisherUseCase(orderPublisherRepo, orderAESRepo)
 
 	pb.RegisterOrderServiceServer(s, &server.OrderServer{
 		UnimplementedOrderServiceServer: pb.UnimplementedOrderServiceServer{},
@@ -52,7 +53,7 @@ func startGRPCServer(db *gorm.DB, chRabbitMQ *amqp.Channel) {
 	reflection.Register(s)
 
 	// gRPC server
-	lis, err := net.Listen("tcp", ":50052")
+	lis, err := net.Listen("tcp", config.Config("GRPC_PORT"))
 	if err != nil {
 		log.Fatalf("Failed to listen: %v\n", err)
 	}

@@ -28,7 +28,9 @@ func (o *OrderServer) PostOrder(ctx context.Context, req *pb.PostOrderRequest) (
 	}
 
 	// insert into db
-	err, tx := o.OrderUseCase.CreateOrderUseCase(orderData)
+	// 1 = success
+	// 0 = for rollback
+	tx, err := o.OrderUseCase.CreateOrderUseCase(orderData, 1)
 	if err != nil {
 		tx.Rollback() // Rollback the transaction in case of an error
 		return &pb.PostOrderResponse{
