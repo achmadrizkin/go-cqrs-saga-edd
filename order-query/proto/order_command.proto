@@ -1,0 +1,41 @@
+syntax = "proto3";
+option go_package = "/";
+
+import "google/protobuf/timestamp.proto";
+
+message Product {
+    string id = 1;
+    string image_url = 2;
+    string name = 3;
+    int64 price = 4;
+    int64 stock = 5;
+    google.protobuf.Timestamp created_at = 6;
+}
+
+message Order {
+    string id = 1;
+    string product_id = 2;
+    int32 quantity = 3;
+    string ship_method = 4;
+    string address = 5;
+    google.protobuf.Timestamp date = 6;
+}
+
+message PostOrderProductRequest {
+    string id = 1;
+    string product_id = 2;
+    int32 quantity = 3;
+    string ship_method = 4;
+    string address = 5;
+    google.protobuf.Timestamp date = 6;
+    Product product = 7;
+}
+
+message PostOrderProductResponse {
+    int32 status_code = 1;
+    string message = 2;
+}
+
+service OrderCommandService {
+    rpc PostOrderProduct(PostOrderProductRequest) returns (PostOrderProductResponse) {};
+}

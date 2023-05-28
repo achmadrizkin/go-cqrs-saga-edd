@@ -32,7 +32,7 @@ func (p *productConsumerUseCase) ConsumerProductFromOrderUseCase(nameQueueConsum
 			// this already decrypt and already unmarshal to object
 			getMessageOrder, errDecryptedAES := p.productAESRepo.DecryptProductAES(d.Body)
 			if errDecryptedAES != nil {
-				log.Println(errDecryptedAES)
+				p.handleRollbackAndErrorInvalidEncryption(d.Body, nameQueueErrPublisherToOrder, errDecryptedAES)
 				continue
 			}
 
@@ -81,6 +81,13 @@ func (p *productConsumerUseCase) ConsumerProductFromOrderUseCase(nameQueueConsum
 func (p *productConsumerUseCase) handleRollbackAndError(tx *gorm.DB, messageBody []byte, nameQueueErrPublisherToOrder string, err error) {
 	tx.Rollback()
 
+	if errErrPublisher := p.productErrPublisherRepo.ProductErrPublisherFromProductToOrder(messageBody, nameQueueErrPublisherToOrder); errErrPublisher != nil {
+		log.Println("errPublisher: ", errErrPublisher)
+	}
+	log.Printf("Error: %v. Rolled back to event: %s\n", err, nameQueueErrPublisherToOrder)
+}
+
+func (p *productConsumerUseCase) handleRollbackAndErrorInvalidEncryption(messageBody []byte, nameQueueErrPublisherToOrder string, err error) {
 	if errErrPublisher := p.productErrPublisherRepo.ProductErrPublisherFromProductToOrder(messageBody, nameQueueErrPublisherToOrder); errErrPublisher != nil {
 		log.Println("errPublisher: ", errErrPublisher)
 	}
