@@ -53,7 +53,7 @@ func declareQueue(ch *amqp.Channel, nameQueue string) (amqp.Queue, error) {
 	return q, err
 }
 
-func NewProductErrPublisherRepo(ch *amqp.Channel) domain.ProductErrPubsliher {
+func NewProductErrPublisherRepo(ch *amqp.Channel) domain.ProductErrPubsliherRepo {
 	return &productErrPublisherRepo{
 		ch: ch,
 	}

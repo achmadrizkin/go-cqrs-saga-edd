@@ -23,11 +23,12 @@ func main() {
 	rabbitMq := rabbitmq.ConnectionToRabbitMq()
 	ch := rabbitmq.ConnectionToChannelRabbitMq(rabbitMq)
 
+	productPublisherRepo := repo.NewProductPublisherRepo(ch)
+	productErrPublisher := repo.NewProductErrPublisherRepo(ch)
 	productConsumerRepo := repo.NewProductConsumerRepo(ch)
 	productAESRepo := repo.NewProductAESRepo()
 	productRepo := repo.NewProductRepo(database)
-	productErrPublisher := repo.NewProductErrPublisherRepo(ch)
-	productConsumerUseCase := usecase.NewProductConsumerUseCase(productConsumerRepo, productAESRepo, productRepo, productErrPublisher)
+	productConsumerUseCase := usecase.NewProductConsumerUseCase(productConsumerRepo, productAESRepo, productRepo, productErrPublisher, productPublisherRepo)
 
-	productConsumerUseCase.ConsumerProductFromOrderUseCase(config.Config("NAME_EVENT_SUCCESS_ORDER_TO_PRODUCT_CONSUMER"), config.Config("NAME_EVENT_FAILED_PRODUCT_TO_ORDER_PUBLISHER"))
+	productConsumerUseCase.ConsumerProductFromOrderUseCase(config.Config("NAME_EVENT_SUCCESS_ORDER_TO_PRODUCT_CONSUMER"), config.Config("NAME_EVENT_FAILED_PRODUCT_TO_ORDER_PUBLISHER"), config.Config("NAME_EVENT_SUCCESS_PRODUCT_TO_ORDER_QUERY_PUBLISHER"))
 }

@@ -10,6 +10,8 @@ type ProductRepo interface {
 	CreateProductRepo(model.Product) error
 
 	GetAllProductRepo([]model.Product) ([]model.Product, error)
+	GetProductByIdRepo(productUUID string) (model.Product, error)
+
 	UpdateStockProductRepo(productUUID string, stock int64, isSuccess int) (*gorm.DB, error)
 }
 

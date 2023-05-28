@@ -12,6 +12,17 @@ type productRepo struct {
 	Db *gorm.DB
 }
 
+// GetProductByIdRepo implements domain.ProductRepo
+func (p *productRepo) GetProductByIdRepo(productUUID string) (model.Product, error) {
+	var product model.Product
+	err := p.Db.Model(&model.Product{}).Select("id", "image_url", "name", "price", "stock", "created_at").Where("id = ?", productUUID).Find(&product).Error
+	if err != nil {
+		return product, errors.New("errGetAllProductRepo: " + err.Error())
+	}
+
+	return product, nil
+}
+
 // UpdateStockProductRepo implements domain.ProductRepo
 func (p *productRepo) UpdateStockProductRepo(productUUID string, stock int64, isSuccess int) (*gorm.DB, error) {
 	tx := p.Db.Begin()

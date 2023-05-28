@@ -12,6 +12,28 @@ import (
 
 type productAESRepo struct{}
 
+// EncryptOrderAES implements domain.OrderEncryptRepo
+func (*productAESRepo) EncryptOrderProductAES(orderProduct model.OrderProduct) ([]byte, error) {
+	// privateToken: 1423456789012345
+	privateToken := config.Config("AES_PRIVATE_TOKEN")
+	key := []byte(privateToken)
+
+	orderProductJSON, errMarshal := json.Marshal(orderProduct)
+	if errMarshal != nil {
+		return nil, errors.New("errMarshalOrder: " + errMarshal.Error())
+	}
+
+	// Encrypt
+	encrypted, errEncryptedAES := utils.EncryptAES(key, string(orderProductJSON))
+	if errEncryptedAES != nil {
+		return nil, errors.New("errEncryptedAES: " + errEncryptedAES.Error())
+	}
+
+	log.Println("Encrypted OrderProduct:", encrypted)
+	log.Println([]byte(encrypted))
+	return []byte(encrypted), nil
+}
+
 // DecryptProductAES implements domain.ProductAESRepo
 func (*productAESRepo) DecryptProductAES(message []byte) (model.Order, error) {
 	privateToken := config.Config("AES_PRIVATE_TOKEN")

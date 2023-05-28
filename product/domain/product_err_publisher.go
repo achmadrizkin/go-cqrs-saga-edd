@@ -1,5 +1,5 @@
 package domain
 
-type ProductErrPubsliher interface {
+type ProductErrPubsliherRepo interface {
 	ProductErrPublisherFromProductToOrder(encryptedOrder []byte, nameQueue string) error
 }
