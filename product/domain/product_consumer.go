@@ -7,5 +7,5 @@ type ProductConsumerRepo interface {
 }
 
 type ProductConsumerUseCase interface {
-	ConsumerProductFromOrderUseCase(nameQueue string) error
+	ConsumerProductFromOrderUseCase(nameQueueConsumer string, nameQueueErrPublisherToOrder string) error
 }

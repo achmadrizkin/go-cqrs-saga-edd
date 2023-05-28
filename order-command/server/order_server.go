@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"go-cqrs-saga-edd/order-command/config"
 	"go-cqrs-saga-edd/order-command/domain"
 	"go-cqrs-saga-edd/order-command/model"
 	pb "go-cqrs-saga-edd/order-command/proto"
@@ -39,7 +40,7 @@ func (o *OrderServer) PostOrder(ctx context.Context, req *pb.PostOrderRequest) (
 		}, nil
 	}
 
-	if errPublisher := o.OrderPublisherUseCase.CreateOrderUseCasePublisherToProduct(orderData, "eOrderToProduct"); errPublisher != nil {
+	if errPublisher := o.OrderPublisherUseCase.CreateOrderUseCasePublisherToProduct(orderData, config.Config("NAME_EVENT_SUCCESS_ORDER_TO_PRODUCT_PUBLISHER")); errPublisher != nil {
 		tx.Rollback() // Rollback the transaction in case of an error
 		return &pb.PostOrderResponse{
 			StatusCode: 500,

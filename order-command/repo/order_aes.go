@@ -34,6 +34,34 @@ func (*orderAESRepo) EncryptOrderAES(order model.Order) ([]byte, error) {
 	return []byte(encrypted), nil
 }
 
+// DecryptOrderAES implements domain.OrderAES
+func (*orderAESRepo) DecryptOrderAES(message []byte) (model.Order, error) {
+	privateToken := config.Config("AES_PRIVATE_TOKEN")
+	key := []byte(privateToken)
+
+	// Decrypt message
+	decrypted, err := utils.DecryptAES(key, string(message))
+	if err != nil {
+		return model.Order{}, errors.New("errorDecryptAES: " + err.Error())
+	}
+
+	log.Println("Decrypted Order Message:", decrypted)
+
+	var order model.Order
+	if err := json.Unmarshal([]byte(decrypted), &order); err != nil {
+		return model.Order{}, errors.New("errorUnmarshalingJSON: " + err.Error())
+	}
+
+	log.Println("Order Id: " + order.Id)
+	log.Println("Order ProductId: " + order.ProductId)
+	log.Println("Order Quantity: ", order.Quantity)
+	log.Println("Order Address: " + order.Address)
+	log.Println("Order ShipMethod : " + order.ShipMethod)
+	log.Println("Order Date : " + order.Date.String())
+
+	return order, nil
+}
+
 func NewOrderAESRepo() domain.OrderAESRepo {
 	return &orderAESRepo{}
 }
