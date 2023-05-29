@@ -1,7 +1,6 @@
 package repo
 
 import (
-	"context"
 	"errors"
 	"go-cqrs-saga-edd/order-query/domain"
 	"go-cqrs-saga-edd/order-query/model"
@@ -14,10 +13,10 @@ type orderCommandRepo struct {
 }
 
 // CreateOrderProduct implements domain.OrderQueryRepo
-func (o *orderCommandRepo) CreateOrderProduct(ctx context.Context, orderProduct model.OrderProduct) error {
-	_, errInsert := o.table.InsertOne(ctx, orderProduct)
+func (o *orderCommandRepo) CreateOrderProduct(sc mongo.SessionContext, orderProduct model.OrderProduct) error {
+	_, errInsert := o.table.InsertOne(sc, orderProduct)
 	if errInsert != nil {
-		return errors.New("errInsertOrderProduct: " + errInsert.Error())
+		return errors.New("errInsertOne: " + errInsert.Error())
 	}
 
 	return nil

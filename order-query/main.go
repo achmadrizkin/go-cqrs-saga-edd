@@ -30,10 +30,10 @@ func main() {
 
 	var table = mongodb.MongoCollection("orderproduct", client)
 
-	startGrpcServer(table)
+	startGrpcServer(table, client)
 }
 
-func startGrpcServer(table *mongo.Collection) {
+func startGrpcServer(table *mongo.Collection, client *mongo.Client) {
 	s := grpc.NewServer()
 
 	orderCommandRepo := repo.NewOrderCommandRepo(table)
@@ -42,6 +42,7 @@ func startGrpcServer(table *mongo.Collection) {
 	pb.RegisterOrderCommandServiceServer(s, &server.OrderCommandServer{
 		UnimplementedOrderCommandServiceServer: pb.UnimplementedOrderCommandServiceServer{},
 		OrderCommandUseCase:                    orderCommandUseCase,
+		Client:                                 client,
 	})
 	reflection.Register(s)
 
