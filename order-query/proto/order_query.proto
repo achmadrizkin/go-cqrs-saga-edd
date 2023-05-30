@@ -1,0 +1,35 @@
+syntax = "proto3";
+option go_package = "/";
+
+import "google/protobuf/timestamp.proto";
+
+message GetOrderProductRequest{}
+
+message GetAllOrderProductResponse {
+    int32 status_code = 1;
+    string message = 2;
+    repeated GetOrderProductResponse data = 3;
+}
+
+message ProductQuery {
+    string id = 1;
+    string image_url = 2;
+    string name = 3;
+    int64 price = 4;
+    int64 stock = 5;
+    google.protobuf.Timestamp created_at = 6;
+}
+
+message GetOrderProductResponse {
+    string id = 1;
+    string product_id = 2;
+    int32 quantity = 3;
+    string ship_method = 4;
+    string address = 5;
+    google.protobuf.Timestamp date = 6;
+    ProductQuery product = 7;
+}
+
+service OrderQueryService {
+    rpc GetOrderProductAll(GetOrderProductRequest) returns (GetAllOrderProductResponse) {};
+}

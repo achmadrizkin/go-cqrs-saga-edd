@@ -32,10 +32,10 @@ func main() {
 
 	var table = mongodb.MongoCollection("orderproduct", client)
 
-	startGrpcServer(table, client)
+	startGrpcServerCommand(table, client)
 }
 
-func startGrpcServer(table *mongo.Collection, client *mongo.Client) {
+func startGrpcServerCommand(table *mongo.Collection, client *mongo.Client) {
 	s := grpc.NewServer()
 
 	orderCommandRepo := repo.NewOrderCommandRepo(table)

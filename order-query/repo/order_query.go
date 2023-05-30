@@ -3,6 +3,7 @@ package repo
 import (
 	"context"
 	"errors"
+	"fmt"
 	"go-cqrs-saga-edd/order-query/domain"
 	"go-cqrs-saga-edd/order-query/model"
 
@@ -12,6 +13,32 @@ import (
 
 type orderQueryRepo struct {
 	table *mongo.Collection
+}
+
+// GetOrderProductAll implements domain.OrderQueryRepo
+func (repo *orderQueryRepo) GetOrderProductAll(ctx context.Context) ([]model.OrderProduct, error) {
+	// Retrieve the cursor
+	cursor, err := repo.table.Find(ctx, bson.M{})
+	if err != nil {
+		return nil, fmt.Errorf("error retrieving order products: %w", err)
+	}
+	defer cursor.Close(ctx)
+
+	// Iterate over the cursor and collect order products
+	var orderProducts []model.OrderProduct
+	for cursor.Next(ctx) {
+		var orderProduct model.OrderProduct
+		if err := cursor.Decode(&orderProduct); err != nil {
+			return nil, fmt.Errorf("error decoding order product: %w", err)
+		}
+		orderProducts = append(orderProducts, orderProduct)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating cursor: %w", err)
+	}
+
+	return orderProducts, nil
 }
 
 // GetOrderById implements domain.OrderQueryRepo
