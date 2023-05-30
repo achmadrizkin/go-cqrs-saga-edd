@@ -17,11 +17,12 @@ type orderQueryConsumerUseCase struct {
 	orderQueryConsumerRepo domain.OrderQueryConsumerRepo
 	orderAESRepo           domain.OrderAESRepo
 	orderCommandRepo       domain.OrderCommandRepo
+	orderErrPublisherRepo  domain.OrderErrPublisherRepo
 	client                 *mongo.Client
 }
 
 // ConsumerOrderQueryConsumerRepo implements domain.OrderQueryConsumerUseCase
-func (o *orderQueryConsumerUseCase) ConsumerOrderQueryConsumerRepo(ctx context.Context, nameQueueConsumer string) error {
+func (o *orderQueryConsumerUseCase) ConsumerOrderQueryConsumerRepo(ctx context.Context, nameQueueConsumer string, sendErrorPublisherToProduct string) error {
 	msgs, err := o.orderQueryConsumerRepo.ConsumerOrderQuerConsumerRepo(nameQueueConsumer)
 	if err != nil {
 		return err
@@ -55,15 +56,27 @@ func (o *orderQueryConsumerUseCase) ConsumerOrderQueryConsumerRepo(ctx context.C
 				// This already decrypts and unmarshals to an object
 				getMessageOrderProduct, errDecryptedAES := o.orderAESRepo.DecryptOrderProductAES(d.Body)
 				if errDecryptedAES != nil {
+					o.orderErrPublisherRepo.CreateErrOrderQueryPublisherToProductRepo(d.Body, sendErrorPublisherToProduct)
 					return errors.New("errDecryptedAES: " + errDecryptedAES.Error())
 				}
 
 				errCreatedProduct := o.orderCommandRepo.CreateOrderProduct(sc, getMessageOrderProduct)
 				if errCreatedProduct != nil {
+					o.orderErrPublisherRepo.CreateErrOrderQueryPublisherToProductRepo(d.Body, sendErrorPublisherToProduct)
 					return errors.New("errCreatedProduct: " + errCreatedProduct.Error())
 				}
 
+				// check rollback
+				// for rollback purpose
+				// i := 1
+				// ix := 1
+				// if i == ix {
+				// 	o.orderErrPublisherRepo.CreateErrOrderQueryPublisherToProductRepo(d.Body, sendErrorPublisherToProduct)
+				// 	return errors.New("testRollback: ")
+				// }
+
 				if errCommitTransaction := session.CommitTransaction(sc); errCommitTransaction != nil {
+					o.orderErrPublisherRepo.CreateErrOrderQueryPublisherToProductRepo(d.Body, sendErrorPublisherToProduct)
 					return errors.New("errCommitTransaction: " + errCommitTransaction.Error())
 				}
 				return nil
@@ -81,11 +94,13 @@ func (o *orderQueryConsumerUseCase) ConsumerOrderQueryConsumerRepo(ctx context.C
 
 	return nil
 }
-func NewOrderQueryConsumerUseCase(orderQueryConsumerRepo domain.OrderQueryConsumerRepo, orderAESRepo domain.OrderAESRepo, orderCommandRepo domain.OrderCommandRepo, client *mongo.Client) domain.OrderQueryConsumerUseCase {
+
+func NewOrderQueryConsumerUseCase(orderQueryConsumerRepo domain.OrderQueryConsumerRepo, orderAESRepo domain.OrderAESRepo, orderCommandRepo domain.OrderCommandRepo, client *mongo.Client, orderErrPublisherRepo domain.OrderErrPublisherRepo) domain.OrderQueryConsumerUseCase {
 	return &orderQueryConsumerUseCase{
 		orderQueryConsumerRepo,
 		orderAESRepo,
 		orderCommandRepo,
+		orderErrPublisherRepo,
 		client,
 	}
 }

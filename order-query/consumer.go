@@ -29,7 +29,8 @@ func main() {
 	orderAESRepo := repo.NewOrderAESRepo()
 	orderConsumerRepo := repo.NewOrderConsumerRepo(ch)
 	orderCommandRepo := repo.NewOrderCommandRepo(table)
-	orderConsumerUseCase := usecase.NewOrderQueryConsumerUseCase(orderConsumerRepo, orderAESRepo, orderCommandRepo, client)
+	orderErrPublisherRepo := repo.NewOrderErrPublisherRepo(ch)
+	orderConsumerUseCase := usecase.NewOrderQueryConsumerUseCase(orderConsumerRepo, orderAESRepo, orderCommandRepo, client, orderErrPublisherRepo)
 
-	orderConsumerUseCase.ConsumerOrderQueryConsumerRepo(ctx, config.Config("NAME_EVENT_SUCCESS_PRODUCT_TO_ORDER_QUERY_PUBLISHER"))
+	orderConsumerUseCase.ConsumerOrderQueryConsumerRepo(ctx, config.Config("NAME_EVENT_SUCCESS_PRODUCT_TO_ORDER_QUERY_PUBLISHER"), config.Config("E_PUBLISHER_ORDER_QUERY"))
 }

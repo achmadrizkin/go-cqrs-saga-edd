@@ -11,5 +11,5 @@ type OrderQueryConsumerRepo interface {
 }
 
 type OrderQueryConsumerUseCase interface {
-	ConsumerOrderQueryConsumerRepo(ctx context.Context, nameQueueConsumer string) error
+	ConsumerOrderQueryConsumerRepo(ctx context.Context, nameQueueConsumer string, sendErrorPublisherToProduct string) error
 }
