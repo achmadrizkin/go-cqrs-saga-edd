@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"go-cqrs-saga-edd/order-query/config"
 	"go-cqrs-saga-edd/order-query/mongodb"
@@ -21,8 +22,9 @@ import (
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	log.Println("Order Query Service Started")
+	ctx := context.TODO()
 
-	client, err := mongodb.MongoDbConn()
+	client, err := mongodb.MongoDbConn(ctx)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
