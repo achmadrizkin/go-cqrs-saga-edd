@@ -16,6 +16,22 @@ type OrderQueryServer struct {
 	OrderQueryUseCase domain.OrderQueryUseCase
 }
 
+func (o *OrderQueryServer) GetOrderProductByOrderId(ctx context.Context, req *pb.GetOrderProductByOrderIdRequest) (*pb.GetOrderProductByOrderIdResponse, error) {
+	orderProduct, err := o.OrderQueryUseCase.GetOrderById(ctx, req.GetId())
+	if err != nil {
+		return &pb.GetOrderProductByOrderIdResponse{
+			StatusCode: 200,
+			Message:    "errGetProductByOrderById: " + err.Error(),
+		}, nil
+	}
+
+	return &pb.GetOrderProductByOrderIdResponse{
+		StatusCode: 200,
+		Message:    "Get Order By Id Success",
+		Data:       convertToGetOrderProductResponse(orderProduct),
+	}, nil
+}
+
 func (o *OrderQueryServer) GetOrderProductAll(ctx context.Context, req *pb.GetOrderProductRequest) (*pb.GetAllOrderProductResponse, error) {
 	orderProducts, err := o.OrderQueryUseCase.GetOrderProductAll(ctx)
 	if err != nil {

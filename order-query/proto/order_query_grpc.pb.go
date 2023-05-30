@@ -22,6 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type OrderQueryServiceClient interface {
+	GetOrderProductByOrderId(ctx context.Context, in *GetOrderProductByOrderIdRequest, opts ...grpc.CallOption) (*GetOrderProductByOrderIdResponse, error)
 	GetOrderProductAll(ctx context.Context, in *GetOrderProductRequest, opts ...grpc.CallOption) (*GetAllOrderProductResponse, error)
 }
 
@@ -31,6 +32,15 @@ type orderQueryServiceClient struct {
 
 func NewOrderQueryServiceClient(cc grpc.ClientConnInterface) OrderQueryServiceClient {
 	return &orderQueryServiceClient{cc}
+}
+
+func (c *orderQueryServiceClient) GetOrderProductByOrderId(ctx context.Context, in *GetOrderProductByOrderIdRequest, opts ...grpc.CallOption) (*GetOrderProductByOrderIdResponse, error) {
+	out := new(GetOrderProductByOrderIdResponse)
+	err := c.cc.Invoke(ctx, "/OrderQueryService/GetOrderProductByOrderId", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *orderQueryServiceClient) GetOrderProductAll(ctx context.Context, in *GetOrderProductRequest, opts ...grpc.CallOption) (*GetAllOrderProductResponse, error) {
@@ -46,6 +56,7 @@ func (c *orderQueryServiceClient) GetOrderProductAll(ctx context.Context, in *Ge
 // All implementations must embed UnimplementedOrderQueryServiceServer
 // for forward compatibility
 type OrderQueryServiceServer interface {
+	GetOrderProductByOrderId(context.Context, *GetOrderProductByOrderIdRequest) (*GetOrderProductByOrderIdResponse, error)
 	GetOrderProductAll(context.Context, *GetOrderProductRequest) (*GetAllOrderProductResponse, error)
 	mustEmbedUnimplementedOrderQueryServiceServer()
 }
@@ -54,6 +65,9 @@ type OrderQueryServiceServer interface {
 type UnimplementedOrderQueryServiceServer struct {
 }
 
+func (UnimplementedOrderQueryServiceServer) GetOrderProductByOrderId(context.Context, *GetOrderProductByOrderIdRequest) (*GetOrderProductByOrderIdResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOrderProductByOrderId not implemented")
+}
 func (UnimplementedOrderQueryServiceServer) GetOrderProductAll(context.Context, *GetOrderProductRequest) (*GetAllOrderProductResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOrderProductAll not implemented")
 }
@@ -68,6 +82,24 @@ type UnsafeOrderQueryServiceServer interface {
 
 func RegisterOrderQueryServiceServer(s grpc.ServiceRegistrar, srv OrderQueryServiceServer) {
 	s.RegisterService(&OrderQueryService_ServiceDesc, srv)
+}
+
+func _OrderQueryService_GetOrderProductByOrderId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOrderProductByOrderIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderQueryServiceServer).GetOrderProductByOrderId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/OrderQueryService/GetOrderProductByOrderId",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderQueryServiceServer).GetOrderProductByOrderId(ctx, req.(*GetOrderProductByOrderIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _OrderQueryService_GetOrderProductAll_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -95,6 +127,10 @@ var OrderQueryService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "OrderQueryService",
 	HandlerType: (*OrderQueryServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetOrderProductByOrderId",
+			Handler:    _OrderQueryService_GetOrderProductByOrderId_Handler,
+		},
 		{
 			MethodName: "GetOrderProductAll",
 			Handler:    _OrderQueryService_GetOrderProductAll_Handler,

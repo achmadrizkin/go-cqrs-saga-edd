@@ -11,6 +11,12 @@ message GetAllOrderProductResponse {
     repeated GetOrderProductResponse data = 3;
 }
 
+message GetOrderProductByOrderIdResponse {
+    int32 status_code = 1;
+    string message = 2;
+    GetOrderProductResponse data = 3;
+}
+
 message ProductQuery {
     string id = 1;
     string image_url = 2;
@@ -18,6 +24,10 @@ message ProductQuery {
     int64 price = 4;
     int64 stock = 5;
     google.protobuf.Timestamp created_at = 6;
+}
+
+message GetOrderProductByOrderIdRequest {
+    string id = 1;
 }
 
 message GetOrderProductResponse {
@@ -31,5 +41,6 @@ message GetOrderProductResponse {
 }
 
 service OrderQueryService {
+    rpc GetOrderProductByOrderId(GetOrderProductByOrderIdRequest) returns (GetOrderProductByOrderIdResponse) {};
     rpc GetOrderProductAll(GetOrderProductRequest) returns (GetAllOrderProductResponse) {};
 }
